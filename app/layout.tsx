@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "InstaGame",
   description: "Next.js App mit Tailwind CSS",
+  icons: { icon: "/icon" },
 };
 
 export default function RootLayout({
