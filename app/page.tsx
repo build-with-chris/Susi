@@ -7,8 +7,7 @@ import {
   getVideosFromLocalFolder,
   getLumenLetterVideosFromFolder,
 } from "@/lib/videos/local-videos";
-import { VideoList } from "@/app/videos/components/VideoList";
-import { LumenLetterSection } from "@/app/videos/components/LumenLetterSection";
+import { PostingDateFilter } from "@/app/videos/components/PostingDateFilter";
 
 export const metadata = {
   title: "Susanne Hoyer Social Media Plan",
@@ -120,27 +119,12 @@ export default async function Home() {
           </h1>
         </div>
 
-        {lumenLetterVideos.length > 0 && (
-          <LumenLetterSection
-            videos={lumenLetterVideos}
-            commentsByVideo={commentsByVideo}
-          />
-        )}
-
-        {mainVideos.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-zinc-300 bg-white/50 p-12 text-center dark:border-zinc-700 dark:bg-zinc-900/30">
-            <p className="text-zinc-600 dark:text-zinc-400">
-              Noch keine Videos. Supabase befüllen oder{" "}
-              <code className="rounded bg-zinc-200 px-1 dark:bg-zinc-700">npm run seed:videos</code> ausführen.
-            </p>
-          </div>
-        ) : (
-          <VideoList
-            videos={mainVideos}
-            commentsByVideo={commentsByVideo}
-            source="supabase"
-          />
-        )}
+        <PostingDateFilter
+          lumenLetterVideos={lumenLetterVideos}
+          mainVideos={mainVideos}
+          commentsByVideo={commentsByVideo}
+          source="supabase"
+        />
       </main>
     </div>
   );
