@@ -8,6 +8,8 @@ import {
   getLumenLetterVideosFromFolder,
 } from "@/lib/videos/local-videos";
 import { PostingDateFilter } from "@/app/videos/components/PostingDateFilter";
+import { LumenLetterSection } from "@/app/videos/components/LumenLetterSection";
+import { VideoList } from "@/app/videos/components/VideoList";
 
 export const metadata = {
   title: "Susanne Hoyer Social Media Plan",
