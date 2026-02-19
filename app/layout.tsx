@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "InstaGame",
-  description: "Next.js App mit Tailwind CSS",
+  title: "Susanne Hoyer Social Media Plan",
+  description: "Video-Übersicht sortiert nach Bewertungs-Hashtag",
   icons: { icon: "/icon" },
 };
 

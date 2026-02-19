@@ -79,3 +79,21 @@ export async function getCommentsByVideoIds(
   }
   return byVideo;
 }
+
+const LUNDL_VIDEO_BASE_URL = "/LundLVideos";
+
+/**
+ * Lädt alle Videos aus der DB, deren video_url mit /LundLVideos/ beginnt (Lumen und Letter).
+ */
+export async function getLumenLetterVideosFromSupabase(): Promise<Video[]> {
+  if (!hasSupabaseEnv()) return [];
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("videos")
+    .select("*")
+    .like("video_url", `${LUNDL_VIDEO_BASE_URL}%`);
+
+  if (error) return [];
+  return (data ?? []) as Video[];
+}

@@ -1,9 +1,17 @@
-import { getVideosOverview, getCommentsByVideoIds } from "@/lib/videos/queries";
-import { getVideosFromLocalFolder } from "@/lib/videos/local-videos";
+import {
+  getVideosOverview,
+  getCommentsByVideoIds,
+  getLumenLetterVideosFromSupabase,
+} from "@/lib/videos/queries";
+import {
+  getVideosFromLocalFolder,
+  getLumenLetterVideosFromFolder,
+} from "@/lib/videos/local-videos";
 import { VideoList } from "@/app/videos/components/VideoList";
+import { LumenLetterSection } from "@/app/videos/components/LumenLetterSection";
 
 export const metadata = {
-  title: "InstaGame",
+  title: "Susanne Hoyer Social Media Plan",
   description: "Video-Übersicht sortiert nach Bewertungs-Hashtag",
 };
 
@@ -13,9 +21,11 @@ export const dynamic = "force-dynamic";
 function FallbackView({
   message,
   localVideos,
+  lumenLetterVideos,
 }: {
   message: string;
   localVideos: ReturnType<typeof getVideosFromLocalFolder>;
+  lumenLetterVideos: ReturnType<typeof getLumenLetterVideosFromFolder>;
 }) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-zinc-900">
@@ -25,11 +35,8 @@ function FallbackView({
         </div>
         <div className="mb-8">
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-3xl">
-            InstaGame
+            Susanne Hoyer Social Media Plan
           </h1>
-          <p className="mt-1 text-zinc-600 dark:text-zinc-400">
-            Sortierung: Bewertungs-Hashtag → geplantes Datum → Erstellungsdatum.
-          </p>
         </div>
         {localVideos.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-zinc-300 bg-white/50 p-12 text-center dark:border-zinc-700 dark:bg-zinc-900/30">
@@ -38,7 +45,13 @@ function FallbackView({
             </p>
           </div>
         ) : (
-          <VideoList videos={localVideos} commentsByVideo={{}} source="local" />
+          <>
+            <LumenLetterSection
+              videos={lumenLetterVideos}
+              commentsByVideo={{}}
+            />
+            <VideoList videos={localVideos} commentsByVideo={{}} source="local" />
+          </>
         )}
       </main>
     </div>
@@ -59,14 +72,25 @@ export default async function Home() {
 
   if (error) {
     const localVideos = getVideosFromLocalFolder();
+    const lumenLetterVideos = getLumenLetterVideosFromFolder();
     const message =
       "Supabase nicht erreichbar (" +
       error.message +
       "). Videos werden aus dem lokalen Ordner public/VideosSusiNeu angezeigt. Auf Vercel: Env-Variablen für Production setzen und Redeploy ausführen.";
-    return <FallbackView message={message} localVideos={localVideos} />;
+    return (
+      <FallbackView
+        message={message}
+        localVideos={localVideos}
+        lumenLetterVideos={lumenLetterVideos}
+      />
+    );
   }
 
-  const videoIds = supabaseVideos.map((v) => v.id);
+  const lumenLetterFromSupabase = await getLumenLetterVideosFromSupabase();
+  const videoIds = [
+    ...supabaseVideos.map((v) => v.id),
+    ...lumenLetterFromSupabase.map((v) => v.id),
+  ];
   let commentsByVideo: Awaited<ReturnType<typeof getCommentsByVideoIds>> = {};
   try {
     commentsByVideo = await getCommentsByVideoIds(videoIds);
@@ -74,19 +98,32 @@ export default async function Home() {
     commentsByVideo = {};
   }
 
+  const lumenLetterFromFolder = getLumenLetterVideosFromFolder();
+  const lumenLetterVideos = lumenLetterFromFolder.map(
+    (fv) =>
+      lumenLetterFromSupabase.find((s) => s.video_url === fv.video_url) ?? fv
+  );
+  const mainVideos = supabaseVideos.filter(
+    (v) => !v.video_url.includes("/LundLVideos/")
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-zinc-900">
       <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-3xl">
-            InstaGame
+            Susanne Hoyer Social Media Plan
           </h1>
-          <p className="mt-1 text-zinc-600 dark:text-zinc-400">
-            Sortierung: Bewertungs-Hashtag → geplantes Datum → Erstellungsdatum.
-          </p>
         </div>
 
-        {supabaseVideos.length === 0 ? (
+        {lumenLetterVideos.length > 0 && (
+          <LumenLetterSection
+            videos={lumenLetterVideos}
+            commentsByVideo={commentsByVideo}
+          />
+        )}
+
+        {mainVideos.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-zinc-300 bg-white/50 p-12 text-center dark:border-zinc-700 dark:bg-zinc-900/30">
             <p className="text-zinc-600 dark:text-zinc-400">
               Noch keine Videos. Supabase befüllen oder{" "}
@@ -95,7 +132,7 @@ export default async function Home() {
           </div>
         ) : (
           <VideoList
-            videos={supabaseVideos}
+            videos={mainVideos}
             commentsByVideo={commentsByVideo}
             source="supabase"
           />
