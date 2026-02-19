@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import type { Video, VideoComment } from "@/types/database";
-import { LumenLetterSection } from "./LumenLetterSection";
 import { VideoList } from "./VideoList";
 
 function toDateSortKey(value: string | null): string {
@@ -43,7 +42,6 @@ type PostingDateFilterProps = {
   source?: "supabase" | "local";
 };
 
-const LUNDL_URL_PREFIX = "/LundLVideos/";
 const PER_PAGE = 12;
 
 export function PostingDateFilter({
@@ -65,13 +63,6 @@ export function PostingDateFilter({
   const currentPage = Math.min(page, totalPages);
   const start = (currentPage - 1) * PER_PAGE;
   const pageVideos = sortedAll.slice(start, start + PER_PAGE);
-
-  const sortedLumen = pageVideos.filter((v) =>
-    v.video_url.includes(LUNDL_URL_PREFIX)
-  );
-  const sortedMain = pageVideos.filter(
-    (v) => !v.video_url.includes(LUNDL_URL_PREFIX)
-  );
 
   return (
     <>
@@ -113,21 +104,12 @@ export function PostingDateFilter({
         </div>
       ) : (
         <>
-          {sortedLumen.length > 0 && (
-            <LumenLetterSection
-              key={"lumen-" + sortMode + "-" + currentPage}
-              videos={sortedLumen}
-              commentsByVideo={commentsByVideo}
-            />
-          )}
-          {sortedMain.length > 0 && (
-            <VideoList
-              key={"main-" + sortMode + "-" + currentPage}
-              videos={sortedMain}
-              commentsByVideo={commentsByVideo}
-              source={source}
-            />
-          )}
+          <VideoList
+            key={"all-" + sortMode + "-" + currentPage}
+            videos={pageVideos}
+            commentsByVideo={commentsByVideo}
+            source="mixed"
+          />
 
           {totalPages > 1 && (
             <nav

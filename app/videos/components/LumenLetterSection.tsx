@@ -20,9 +20,6 @@ export function LumenLetterSection({
 
   return (
     <section className="mb-10">
-      <h2 className="mb-3 text-lg font-semibold text-zinc-800 dark:text-zinc-200">
-        Lumen und Letter
-      </h2>
       <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {videos.map((video) => (
           <li key={video.id} className="min-w-0">
