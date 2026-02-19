@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import type { VideoCommentInsert, VideoUpdate } from "@/types/database";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
@@ -16,11 +17,13 @@ export async function saveComment(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.from("video_comments").insert({
+  const row: VideoCommentInsert = {
     video_id: videoId,
     comment: trimmed,
     author_name: authorName ?? null,
-  });
+  };
+  // @ts-expect-error Supabase SSR client infers never for insert; runtime is correct
+  const { error } = await supabase.from("video_comments").insert(row);
 
   if (error) {
     return { ok: false, error: error.message };
@@ -35,10 +38,9 @@ export async function updateCaption(
 ): Promise<ActionResult> {
   const trimmed = caption?.trim() ?? "";
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("videos")
-    .update({ caption: trimmed })
-    .eq("id", videoId);
+  const payload: VideoUpdate = { caption: trimmed };
+  // @ts-expect-error Supabase SSR client infers never for update; runtime is correct
+  const { error } = await supabase.from("videos").update(payload).eq("id", videoId);
 
   if (error) {
     return { ok: false, error: error.message };
@@ -57,10 +59,9 @@ export async function updateProposedPostDate(
       : null;
 
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("videos")
-    .update({ proposed_post_date: value })
-    .eq("id", videoId);
+  const payload: VideoUpdate = { proposed_post_date: value };
+  // @ts-expect-error Supabase SSR client infers never for update; runtime is correct
+  const { error } = await supabase.from("videos").update(payload).eq("id", videoId);
 
   if (error) {
     return { ok: false, error: error.message };
