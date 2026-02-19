@@ -99,10 +99,14 @@ export default async function Home() {
   }
 
   const lumenLetterFromFolder = getLumenLetterVideosFromFolder();
+  const folderUrls = new Set(lumenLetterFromFolder.map((f) => f.video_url));
   const lumenLetterVideos = lumenLetterFromFolder.map(
     (fv) =>
       lumenLetterFromSupabase.find((s) => s.video_url === fv.video_url) ?? fv
   );
+  for (const s of lumenLetterFromSupabase) {
+    if (!folderUrls.has(s.video_url)) lumenLetterVideos.push(s);
+  }
   const mainVideos = supabaseVideos.filter(
     (v) => !v.video_url.includes("/LundLVideos/")
   );
