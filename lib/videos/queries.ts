@@ -4,16 +4,30 @@ import type { Video, VideoComment } from "@/types/database";
 const VIDEOS_PAGE_SIZE = 18;
 const VIDEOS_FETCH_LIMIT = 60;
 
+function hasSupabaseEnv(): boolean {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+  return Boolean(url && key && !key.includes("<<"));
+}
+
 /**
  * Lädt Videos mit Sortierung, pro video_url nur ein Eintrag (keine Duplikate).
  * - Primär: rating_rank aufsteigend
  * - Sekundär: proposed_post_date aufsteigend (NULLS LAST)
  * - Tertiär: created_at absteigend
+ * Bei fehlenden Env-Variablen wird ein Fehler zurückgegeben (kein Throw), damit die Seite z. B. lokale Videos anzeigen kann.
  */
 export async function getVideosOverview(): Promise<{
   videos: Video[];
   error: Error | null;
 }> {
+  if (!hasSupabaseEnv()) {
+    return {
+      videos: [],
+      error: new Error("Supabase-Env fehlt (NEXT_PUBLIC_SUPABASE_URL / ANON_KEY)"),
+    };
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -47,7 +61,7 @@ export async function getVideosOverview(): Promise<{
 export async function getCommentsByVideoIds(
   videoIds: string[]
 ): Promise<Record<string, VideoComment[]>> {
-  if (videoIds.length === 0) return {};
+  if (videoIds.length === 0 || !hasSupabaseEnv()) return {};
 
   const supabase = await createClient();
   const { data, error } = await supabase
