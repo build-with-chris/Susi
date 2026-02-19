@@ -5,6 +5,7 @@ import { VideoCard } from "./VideoCard";
 import { CaptionEditor } from "./components/CaptionEditor";
 import { CommentBox } from "./components/CommentBox";
 import { DateEditor } from "./components/DateEditor";
+import { RatingEditor } from "./components/RatingEditor";
 
 type VideoChefBlockProps = {
   video: Video;
@@ -30,6 +31,12 @@ export function VideoChefBlock({ video, comments }: VideoChefBlockProps) {
       </div>
 
       <div className="mt-6 space-y-6 border-t border-zinc-200 pt-6 dark:border-zinc-700">
+        <RatingEditor
+          videoId={video.id}
+          currentRatingTag={video.rating_tag ?? ""}
+          currentCaption={video.caption ?? ""}
+          labelId={`rating-${video.id}`}
+        />
         <CaptionEditor
           videoId={video.id}
           initialCaption={video.caption ?? ""}

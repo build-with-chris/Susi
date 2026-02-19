@@ -3,6 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { VideoCommentInsert, VideoUpdate } from "@/types/database";
+import {
+  getRatingFromCaption,
+  replaceFirstRatingHashtag,
+  RATING_UNKNOWN_RANK_CONST,
+} from "@/lib/videos/rating";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
@@ -60,6 +65,34 @@ export async function updateProposedPostDate(
 
   const supabase = await createClient();
   const payload: VideoUpdate = { proposed_post_date: value };
+  // @ts-expect-error Supabase SSR client infers never for update; runtime is correct
+  const { error } = await supabase.from("videos").update(payload).eq("id", videoId);
+
+  if (error) {
+    return { ok: false, error: error.message };
+  }
+  revalidatePath("/");
+  return { ok: true };
+}
+
+export async function updateRating(
+  videoId: string,
+  ratingTag: string | null,
+  currentCaption: string
+): Promise<ActionResult> {
+  const tag = ratingTag?.trim() ?? "";
+  const { rating_tag, rating_rank } =
+    tag === ""
+      ? { rating_tag: "", rating_rank: RATING_UNKNOWN_RANK_CONST }
+      : getRatingFromCaption(tag);
+  const newCaption = replaceFirstRatingHashtag(currentCaption, tag);
+
+  const supabase = await createClient();
+  const payload: VideoUpdate = {
+    rating_tag,
+    rating_rank,
+    caption: newCaption,
+  };
   // @ts-expect-error Supabase SSR client infers never for update; runtime is correct
   const { error } = await supabase.from("videos").update(payload).eq("id", videoId);
 

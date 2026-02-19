@@ -71,3 +71,49 @@ export function getRatingFromCaption(caption: string): {
 }
 
 export const RATING_UNKNOWN_RANK_CONST = RATING_UNKNOWN_RANK;
+
+/** Optionen für die UI: Bewertung ändern (stark, gut, mittel, schlecht + ohne). */
+export const RATING_OPTIONS: { tag: string; label: string }[] = [
+  { tag: "#stark", label: "Stark" },
+  { tag: "#gut", label: "Gut" },
+  { tag: "#mittel", label: "Mittel" },
+  { tag: "#schlecht", label: "Schlecht" },
+  { tag: "", label: "Ohne Bewertung" },
+];
+
+/**
+ * Ersetzt den ersten Bewertungs-Hashtag in der Caption durch den neuen Tag.
+ * Wenn newTag leer ist, wird der erste gefundene Rating-Hashtag entfernt.
+ */
+export function replaceFirstRatingHashtag(
+  caption: string,
+  newTag: string
+): string {
+  if (!caption || typeof caption !== "string") return newTag ? newTag : "";
+  const raw = caption.trim();
+  const byLength = [...SUSI_TAG_RANKS].sort(
+    (a, b) => b[0].length - a[0].length
+  );
+  let found = false;
+  let rest = raw;
+  let prefix = "";
+  for (const [tag] of byLength) {
+    if (raw.toLowerCase().startsWith(tag.toLowerCase())) {
+      prefix = raw.slice(0, tag.length);
+      rest = raw.slice(tag.length).replace(/^\s+/, "");
+      found = true;
+      break;
+    }
+  }
+  if (!found) {
+    const match = raw.match(/^(#\w+)(\s*)(.*)/);
+    if (match) {
+      prefix = match[1];
+      rest = (match[2] + (match[3] ?? "")).trim();
+      found = true;
+    }
+  }
+  if (!found) return newTag ? `${newTag} ${raw}`.trim() : raw;
+  if (!newTag) return rest;
+  return `${newTag} ${rest}`.trim();
+}
