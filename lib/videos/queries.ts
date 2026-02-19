@@ -1,0 +1,67 @@
+import { createClient } from "@/lib/supabase/server";
+import type { Video, VideoComment } from "@/types/database";
+
+const VIDEOS_PAGE_SIZE = 18;
+const VIDEOS_FETCH_LIMIT = 60;
+
+/**
+ * Lädt Videos mit Sortierung, pro video_url nur ein Eintrag (keine Duplikate).
+ * - Primär: rating_rank aufsteigend
+ * - Sekundär: proposed_post_date aufsteigend (NULLS LAST)
+ * - Tertiär: created_at absteigend
+ */
+export async function getVideosOverview(): Promise<{
+  videos: Video[];
+  error: Error | null;
+}> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("videos")
+    .select("*")
+    .order("rating_rank", { ascending: true })
+    .order("proposed_post_date", { ascending: true, nullsFirst: false })
+    .order("created_at", { ascending: false })
+    .limit(VIDEOS_FETCH_LIMIT);
+
+  if (error) {
+    return { videos: [], error };
+  }
+
+  const rows = (data ?? []) as Video[];
+  const seen = new Set<string>();
+  const unique: Video[] = [];
+  for (const v of rows) {
+    if (seen.has(v.video_url)) continue;
+    seen.add(v.video_url);
+    unique.push(v);
+    if (unique.length >= VIDEOS_PAGE_SIZE) break;
+  }
+  return { videos: unique, error: null };
+}
+
+/**
+ * Lädt alle Kommentare für die gegebenen Video-IDs, gruppiert nach video_id.
+ * Pro Video: neueste zuerst (created_at absteigend).
+ */
+export async function getCommentsByVideoIds(
+  videoIds: string[]
+): Promise<Record<string, VideoComment[]>> {
+  if (videoIds.length === 0) return {};
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("video_comments")
+    .select("*")
+    .in("video_id", videoIds)
+    .order("created_at", { ascending: false });
+
+  if (error) return {};
+
+  const byVideo: Record<string, VideoComment[]> = {};
+  for (const id of videoIds) byVideo[id] = [];
+  for (const row of (data ?? []) as VideoComment[]) {
+    byVideo[row.video_id].push(row);
+  }
+  return byVideo;
+}
