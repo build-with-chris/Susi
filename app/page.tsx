@@ -38,6 +38,9 @@ function FallbackView({
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-3xl">
             Susanne Hoyer Social Media Plan
           </h1>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            Thumbnail ist hier nur der erste Frame. Das Bild wird nochmal separat ausgewählt.
+          </p>
         </div>
         {localVideos.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-zinc-300 bg-white/50 p-12 text-center dark:border-zinc-700 dark:bg-zinc-900/30">
@@ -119,6 +122,9 @@ export default async function Home() {
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-3xl">
             Susanne Hoyer Social Media Plan
           </h1>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            Thumbnail ist hier nur der erste Frame. Das Bild wird nochmal separat ausgewählt.
+          </p>
         </div>
 
         <PostingDateFilter

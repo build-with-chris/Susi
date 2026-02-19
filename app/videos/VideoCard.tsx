@@ -59,6 +59,7 @@ export function VideoCard({ video }: VideoCardProps) {
           preload="auto"
           playsInline
           controls
+          controlsList="nofullscreen"
           className="h-full w-full object-cover"
           onEnded={() => setPlaying(false)}
           onPause={() => setPlaying(false)}
