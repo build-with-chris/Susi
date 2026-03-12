@@ -120,9 +120,9 @@ export default async function SusanneHoyerPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-zinc-900">
-      <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-3xl">
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-3xl">
             Susanne Hoyer
           </h1>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">

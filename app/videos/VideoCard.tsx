@@ -70,10 +70,10 @@ export function VideoCard({ video }: VideoCardProps) {
         />
         {!playing && (
           <span
-            className="absolute inset-0 flex items-center justify-center bg-black/20 transition-opacity hover:bg-black/30"
+            className="absolute inset-0 flex items-center justify-center bg-black/20 transition-opacity hover:bg-black/30 active:bg-black/40"
             aria-hidden
           >
-            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 shadow-lg">
+            <span className="flex h-14 w-14 min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-white/90 shadow-lg touch-manipulation">
               <svg
                 className="ml-1 h-6 w-6 text-zinc-900"
                 fill="currentColor"

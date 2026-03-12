@@ -63,3 +63,13 @@ CREATE POLICY "Allow public delete in project-videos"
 -- 6) Bewertung mit Namen verknüpfen (wer hat die aktuelle Bewertung gesetzt)
 ALTER TABLE public.videos
   ADD COLUMN IF NOT EXISTS rating_author_name text;
+
+-- 7) Passwortschutz pro Projekt (wie Conception)
+ALTER TABLE public.projects
+  ADD COLUMN IF NOT EXISTS password_protected boolean NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS password_hash text;
+COMMENT ON COLUMN public.projects.password_protected IS 'Wenn true, muss beim Aufruf des Projekts ein Passwort eingegeben werden.';
+COMMENT ON COLUMN public.projects.password_hash IS 'bcrypt-Hash des Projektpassworts; nur gesetzt wenn password_protected = true.';
+
+-- Bestehende Projekte entsperren (kein Passwort): Einmal ausführen, wenn alle Projekte plötzlich passwortgeschützt erscheinen.
+-- UPDATE public.projects SET password_protected = false, password_hash = null;

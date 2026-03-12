@@ -19,7 +19,7 @@ export function VideoList({
   source = "supabase",
 }: VideoListProps) {
   return (
-    <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+    <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {videos.map((video) => (
         <li key={video.id} className="min-w-0">
           {source === "local" ? (

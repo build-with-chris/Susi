@@ -14,16 +14,22 @@ export interface Database {
           id: string;
           title: string;
           created_at: string;
+          password_protected: boolean;
+          password_hash: string | null;
         };
         Insert: {
           id?: string;
           title: string;
           created_at?: string;
+          password_protected?: boolean;
+          password_hash?: string | null;
         };
         Update: {
           id?: string;
           title?: string;
           created_at?: string;
+          password_protected?: boolean;
+          password_hash?: string | null;
         };
       };
       videos: {

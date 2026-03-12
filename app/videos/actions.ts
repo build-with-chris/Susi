@@ -104,3 +104,18 @@ export async function updateRating(
   revalidatePath("/");
   return { ok: true };
 }
+
+export async function deleteVideo(videoId: string): Promise<ActionResult> {
+  if (!videoId?.trim()) {
+    return { ok: false, error: "Video-ID fehlt." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("videos").delete().eq("id", videoId.trim());
+
+  if (error) {
+    return { ok: false, error: error.message };
+  }
+  revalidatePath("/");
+  return { ok: true };
+}

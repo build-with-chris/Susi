@@ -7,6 +7,7 @@ import { CaptionEditor } from "./components/CaptionEditor";
 import { CommentBox } from "./components/CommentBox";
 import { DateEditor } from "./components/DateEditor";
 import { RatingEditor } from "./components/RatingEditor";
+import { VideoLoeschenButton } from "./components/VideoLoeschenButton";
 
 type VideoChefBlockProps = {
   video: Video;
@@ -36,7 +37,7 @@ export function VideoChefBlock({ video, comments }: VideoChefBlockProps) {
         type="button"
         onClick={() => setExpanded((e) => !e)}
         aria-expanded={expanded}
-        className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-300 dark:hover:bg-zinc-800"
+        className="mt-3 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 py-3 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 active:bg-zinc-200 dark:border-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:active:bg-zinc-700"
       >
         {expanded ? (
           <>
@@ -79,6 +80,13 @@ export function VideoChefBlock({ video, comments }: VideoChefBlockProps) {
             comments={comments}
             labelId={`comment-${video.id}`}
           />
+          <div className="border-t border-zinc-200 pt-6 dark:border-zinc-700">
+            <p className="mb-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400">Video entfernen</p>
+            <VideoLoeschenButton
+              videoId={video.id}
+              videoLabel={video.caption?.trim() || video.title || ""}
+            />
+          </div>
         </div>
       )}
     </section>

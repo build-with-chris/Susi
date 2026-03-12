@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getProjects } from "@/lib/videos/queries";
+import { ProjektListe } from "@/app/components/ProjektListe";
 
 export const metadata = {
   title: "Start",
@@ -13,8 +14,8 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-zinc-900">
-      <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-4xl">
+      <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-4xl">
           Willkommen
         </h1>
         <p className="mt-2 text-lg text-zinc-600 dark:text-zinc-400">
@@ -26,21 +27,7 @@ export default async function Home() {
             <h2 className="text-xl font-semibold text-zinc-800 dark:text-zinc-200">
               Deine Projekte
             </h2>
-            <ul className="mt-3 space-y-2">
-              {projects.map((p) => (
-                <li key={p.id}>
-                  <Link
-                    href={`/projekt/${p.id}`}
-                    className="inline-flex w-full items-center justify-between rounded-xl border border-zinc-200 bg-white px-4 py-3 text-left text-zinc-800 shadow-sm transition-colors hover:bg-zinc-50 hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700 dark:hover:border-zinc-600"
-                  >
-                    <span className="font-medium">{p.title}</span>
-                    <svg className="h-4 w-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <ProjektListe projects={projects} />
           </section>
         )}
 
@@ -59,18 +46,6 @@ export default async function Home() {
               Neues Projekt anlegen
             </Link>
           </div>
-        </section>
-
-        <section className="mt-10">
-          <Link
-            href="/susanne-hoyer"
-            className="inline-flex items-center rounded-lg border border-zinc-300 bg-white px-5 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
-          >
-            Projekt „Susanne Hoyer“ öffnen
-            <svg className="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
         </section>
 
         <section className="mt-12 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50">
