@@ -78,7 +78,8 @@ export async function updateProposedPostDate(
 export async function updateRating(
   videoId: string,
   ratingTag: string | null,
-  currentCaption: string
+  currentCaption: string,
+  authorName?: string | null
 ): Promise<ActionResult> {
   const tag = ratingTag?.trim() ?? "";
   const { rating_tag, rating_rank } =
@@ -92,6 +93,7 @@ export async function updateRating(
     rating_tag,
     rating_rank,
     caption: newCaption,
+    rating_author_name: authorName?.trim() || null,
   };
   // @ts-expect-error Supabase SSR client infers never for update; runtime is correct
   const { error } = await supabase.from("videos").update(payload).eq("id", videoId);

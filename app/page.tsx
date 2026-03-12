@@ -1,138 +1,106 @@
-import {
-  getVideosOverview,
-  getCommentsByVideoIds,
-  getLumenLetterVideosFromSupabase,
-} from "@/lib/videos/queries";
-import {
-  getVideosFromLocalFolder,
-  getLumenLetterVideosFromFolder,
-} from "@/lib/videos/local-videos";
-import { PostingDateFilter } from "@/app/videos/components/PostingDateFilter";
-import { LumenLetterSection } from "@/app/videos/components/LumenLetterSection";
-import { VideoList } from "@/app/videos/components/VideoList";
+import Link from "next/link";
+import { getProjects } from "@/lib/videos/queries";
 
 export const metadata = {
-  title: "Susanne Hoyer Social Media Plan",
-  description: "Video-Übersicht sortiert nach Bewertungs-Hashtag",
+  title: "Start",
+  description: "Susanne Hoyer Social Media Plan – Video-Übersicht",
 };
 
-// Immer zur Laufzeit rendern, damit Env-Variablen auf Vercel verfügbar sind
 export const dynamic = "force-dynamic";
 
-function FallbackView({
-  message,
-  localVideos,
-  lumenLetterVideos,
-}: {
-  message: string;
-  localVideos: ReturnType<typeof getVideosFromLocalFolder>;
-  lumenLetterVideos: ReturnType<typeof getLumenLetterVideosFromFolder>;
-}) {
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-zinc-900">
-      <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
-          {message}
-        </div>
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-3xl">
-            Susanne Hoyer Social Media Plan
-          </h1>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            Thumbnail ist hier nur der erste Frame. Das Bild wird nochmal separat ausgewählt.
-          </p>
-        </div>
-        {localVideos.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-zinc-300 bg-white/50 p-12 text-center dark:border-zinc-700 dark:bg-zinc-900/30">
-            <p className="text-zinc-600 dark:text-zinc-400">
-              Keine Videos in <code className="rounded bg-zinc-200 px-1 dark:bg-zinc-700">public/VideosSusiNeu</code> gefunden.
-            </p>
-          </div>
-        ) : (
-          <>
-            <LumenLetterSection
-              videos={lumenLetterVideos}
-              commentsByVideo={{}}
-            />
-            <VideoList videos={localVideos} commentsByVideo={{}} source="local" />
-          </>
-        )}
-      </main>
-    </div>
-  );
-}
-
 export default async function Home() {
-  let supabaseVideos: Awaited<ReturnType<typeof getVideosOverview>>["videos"] = [];
-  let error: Error | null = null;
-
-  try {
-    const result = await getVideosOverview();
-    supabaseVideos = result.videos;
-    error = result.error;
-  } catch (e) {
-    error = e instanceof Error ? e : new Error(String(e));
-  }
-
-  if (error) {
-    const localVideos = getVideosFromLocalFolder();
-    const lumenLetterVideos = getLumenLetterVideosFromFolder();
-    const message =
-      "Supabase nicht erreichbar (" +
-      error.message +
-      "). Videos werden aus dem lokalen Ordner public/VideosSusiNeu angezeigt. Auf Vercel: Env-Variablen für Production setzen und Redeploy ausführen.";
-    return (
-      <FallbackView
-        message={message}
-        localVideos={localVideos}
-        lumenLetterVideos={lumenLetterVideos}
-      />
-    );
-  }
-
-  const lumenLetterFromSupabase = await getLumenLetterVideosFromSupabase();
-  const videoIds = [
-    ...supabaseVideos.map((v) => v.id),
-    ...lumenLetterFromSupabase.map((v) => v.id),
-  ];
-  let commentsByVideo: Awaited<ReturnType<typeof getCommentsByVideoIds>> = {};
-  try {
-    commentsByVideo = await getCommentsByVideoIds(videoIds);
-  } catch {
-    commentsByVideo = {};
-  }
-
-  const lumenLetterFromFolder = getLumenLetterVideosFromFolder();
-  const folderUrls = new Set(lumenLetterFromFolder.map((f) => f.video_url));
-  const lumenLetterVideos = lumenLetterFromFolder.map(
-    (fv) =>
-      lumenLetterFromSupabase.find((s) => s.video_url === fv.video_url) ?? fv
-  );
-  for (const s of lumenLetterFromSupabase) {
-    if (!folderUrls.has(s.video_url)) lumenLetterVideos.push(s);
-  }
-  const mainVideos = supabaseVideos.filter(
-    (v) => !v.video_url.includes("/LundLVideos/")
-  );
+  const projects = await getProjects();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-zinc-900">
-      <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-3xl">
-            Susanne Hoyer Social Media Plan
-          </h1>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            Thumbnail ist hier nur der erste Frame. Das Bild wird nochmal separat ausgewählt.
-          </p>
-        </div>
+      <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+        <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-4xl">
+          Willkommen
+        </h1>
+        <p className="mt-2 text-lg text-zinc-600 dark:text-zinc-400">
+          Social Media Posting Plan – Web App
+        </p>
 
-        <PostingDateFilter
-          lumenLetterVideos={lumenLetterVideos}
-          mainVideos={mainVideos}
-          commentsByVideo={commentsByVideo}
-          source="supabase"
-        />
+        {projects.length > 0 && (
+          <section className="mt-10">
+            <h2 className="text-xl font-semibold text-zinc-800 dark:text-zinc-200">
+              Deine Projekte
+            </h2>
+            <ul className="mt-3 space-y-2">
+              {projects.map((p) => (
+                <li key={p.id}>
+                  <Link
+                    href={`/projekt/${p.id}`}
+                    className="inline-flex w-full items-center justify-between rounded-xl border border-zinc-200 bg-white px-4 py-3 text-left text-zinc-800 shadow-sm transition-colors hover:bg-zinc-50 hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700 dark:hover:border-zinc-600"
+                  >
+                    <span className="font-medium">{p.title}</span>
+                    <svg className="h-4 w-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <section className="mt-10">
+          <h2 className="text-xl font-semibold text-zinc-800 dark:text-zinc-200">
+            Neues Projekt anlegen
+          </h2>
+          <div className="mt-3 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50">
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              Lege ein neues Projekt an, um Videos zu verwalten und zu planen.
+            </p>
+            <Link
+              href="/projekt/neu"
+              className="mt-4 inline-flex items-center rounded-lg bg-violet-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
+            >
+              Neues Projekt anlegen
+            </Link>
+          </div>
+        </section>
+
+        <section className="mt-10">
+          <Link
+            href="/susanne-hoyer"
+            className="inline-flex items-center rounded-lg border border-zinc-300 bg-white px-5 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+          >
+            Projekt „Susanne Hoyer“ öffnen
+            <svg className="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </section>
+
+        <section className="mt-12 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50">
+          <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-200">
+            Kurz-Anleitung: Social Media Posting Plan (Web App)
+          </h2>
+          <ul className="mt-4 space-y-4 text-sm text-zinc-700 dark:text-zinc-300">
+            <li>
+              <strong className="font-medium text-zinc-900 dark:text-white">Video bewerten:</strong>{" "}
+              Wähle eine Bewertung aus: Stark, Gut, Mittel oder Schlecht. Hier wird das zuletzt
+              gewählte angezeigt – sprich der Nutzer, der es am Ende (zeitlich) bewertet hat.
+            </li>
+            <li>
+              <strong className="font-medium text-zinc-900 dark:text-white">Posting-Datum ändern:</strong>{" "}
+              Du kannst das Datum anpassen, wann das Video gepostet werden soll.
+            </li>
+            <li>
+              <strong className="font-medium text-zinc-900 dark:text-white">Kommentar hinzufügen:</strong>{" "}
+              Schreib kurz rein, was geändert werden muss (z. B. umschneiden, Text anpassen, …).
+            </li>
+            <li>
+              <strong className="font-medium text-zinc-900 dark:text-white">Speichern:</strong>{" "}
+              Änderungen werden automatisch gespeichert – außer bei der Caption (die musst du extra
+              speichern).
+            </li>
+          </ul>
+          <p className="mt-5 text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            Tipp: Läuft am besten auf dem Laptop
+          </p>
+        </section>
       </main>
     </div>
   );

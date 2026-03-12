@@ -29,7 +29,9 @@ export function getLumenLetterVideosFromFolder(): Video[] {
       caption: caption || "",
       rating_tag: rating_tag || "(ohne Bewertung)",
       rating_rank: rating_rank ?? 999,
+      rating_author_name: null,
       proposed_post_date: null,
+      project_id: null,
       created_at: now,
       updated_at: now,
     };
@@ -57,7 +59,9 @@ export function getVideosFromLocalFolder(): Video[] {
       caption: caption || "",
       rating_tag: rating_tag || "(ohne Bewertung)",
       rating_rank: rating_rank ?? 999,
+      rating_author_name: null,
       proposed_post_date: null,
+      project_id: null,
       created_at: now,
       updated_at: now,
     };

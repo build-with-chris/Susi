@@ -61,6 +61,7 @@ export function VideoChefBlock({ video, comments }: VideoChefBlockProps) {
             videoId={video.id}
             currentRatingTag={video.rating_tag ?? ""}
             currentCaption={video.caption ?? ""}
+            currentRatingAuthorName={video.rating_author_name}
             labelId={`rating-${video.id}`}
           />
           <CaptionEditor

@@ -9,6 +9,23 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      projects: {
+        Row: {
+          id: string;
+          title: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          created_at?: string;
+        };
+      };
       videos: {
         Row: {
           id: string;
@@ -17,7 +34,9 @@ export interface Database {
           caption: string;
           rating_tag: string;
           rating_rank: number;
+          rating_author_name: string | null;
           proposed_post_date: string | null;
+          project_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -28,7 +47,9 @@ export interface Database {
           caption: string;
           rating_tag: string;
           rating_rank: number;
+          rating_author_name?: string | null;
           proposed_post_date?: string | null;
+          project_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -39,7 +60,9 @@ export interface Database {
           caption?: string;
           rating_tag?: string;
           rating_rank?: number;
+          rating_author_name?: string | null;
           proposed_post_date?: string | null;
+          project_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -83,3 +106,6 @@ export type VideoCommentInsert =
   Database["public"]["Tables"]["video_comments"]["Insert"];
 export type VideoCommentUpdate =
   Database["public"]["Tables"]["video_comments"]["Update"];
+
+export type Project = Database["public"]["Tables"]["projects"]["Row"];
+export type ProjectInsert = Database["public"]["Tables"]["projects"]["Insert"];

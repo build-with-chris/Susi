@@ -1,0 +1,142 @@
+import {
+  getVideosOverview,
+  getCommentsByVideoIds,
+  getLumenLetterVideosFromSupabase,
+} from "@/lib/videos/queries";
+import {
+  getVideosFromLocalFolder,
+  getLumenLetterVideosFromFolder,
+} from "@/lib/videos/local-videos";
+import { PostingDateFilter } from "@/app/videos/components/PostingDateFilter";
+import { LumenLetterSection } from "@/app/videos/components/LumenLetterSection";
+import { VideoList } from "@/app/videos/components/VideoList";
+
+export const metadata = {
+  title: "Susanne Hoyer",
+  description: "Video-Übersicht sortiert nach Bewertungs-Hashtag",
+};
+
+export const dynamic = "force-dynamic";
+
+function FallbackView({
+  message,
+  localVideos,
+  lumenLetterVideos,
+}: {
+  message: string;
+  localVideos: ReturnType<typeof getVideosFromLocalFolder>;
+  lumenLetterVideos: ReturnType<typeof getLumenLetterVideosFromFolder>;
+}) {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-zinc-900">
+      <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+          {message}
+        </div>
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-3xl">
+            Susanne Hoyer
+          </h1>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            Thumbnail ist hier nur der erste Frame. Das Bild wird nochmal separat ausgewählt.
+          </p>
+        </div>
+        {localVideos.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-zinc-300 bg-white/50 p-12 text-center dark:border-zinc-700 dark:bg-zinc-900/30">
+            <p className="text-zinc-600 dark:text-zinc-400">
+              Keine Videos in <code className="rounded bg-zinc-200 px-1 dark:bg-zinc-700">public/VideosSusiNeu</code> gefunden.
+            </p>
+          </div>
+        ) : (
+          <>
+            <LumenLetterSection
+              videos={lumenLetterVideos}
+              commentsByVideo={{}}
+            />
+            <VideoList videos={localVideos} commentsByVideo={{}} source="local" />
+          </>
+        )}
+      </main>
+    </div>
+  );
+}
+
+export default async function SusanneHoyerPage() {
+  let supabaseVideos: Awaited<ReturnType<typeof getVideosOverview>>["videos"] = [];
+  let error: Error | null = null;
+
+  try {
+    const result = await getVideosOverview();
+    supabaseVideos = result.videos;
+    error = result.error;
+  } catch (e) {
+    error = e instanceof Error ? e : new Error(String(e));
+  }
+
+  if (error) {
+    const localVideos = getVideosFromLocalFolder();
+    const lumenLetterVideos = getLumenLetterVideosFromFolder();
+    const message =
+      "Supabase nicht erreichbar (" +
+      error.message +
+      "). Videos werden aus dem lokalen Ordner public/VideosSusiNeu angezeigt. Auf Vercel: Env-Variablen für Production setzen und Redeploy ausführen.";
+    return (
+      <FallbackView
+        message={message}
+        localVideos={localVideos}
+        lumenLetterVideos={lumenLetterVideos}
+      />
+    );
+  }
+
+  const lumenLetterFromSupabase = await getLumenLetterVideosFromSupabase();
+  const videoIds = [
+    ...supabaseVideos.map((v) => v.id),
+    ...lumenLetterFromSupabase.map((v) => v.id),
+  ];
+  let commentsByVideo: Awaited<ReturnType<typeof getCommentsByVideoIds>> = {};
+  try {
+    commentsByVideo = await getCommentsByVideoIds(videoIds);
+  } catch {
+    commentsByVideo = {};
+  }
+
+  const lumenLetterFromFolder = getLumenLetterVideosFromFolder();
+  const folderUrls = new Set(lumenLetterFromFolder.map((f) => f.video_url));
+  const lumenLetterVideos = lumenLetterFromFolder.map(
+    (fv) =>
+      lumenLetterFromSupabase.find((s) => s.video_url === fv.video_url) ?? fv
+  );
+  for (const s of lumenLetterFromSupabase) {
+    if (!folderUrls.has(s.video_url)) lumenLetterVideos.push(s);
+  }
+  const mainVideos = supabaseVideos.filter((v) => {
+    if (v.video_url.includes("/LundLVideos/")) return false;
+    const cap = (v.caption ?? "").toLowerCase();
+    const tit = (v.title ?? "").toLowerCase();
+    if (cap.includes("rewe sma reel") || tit.includes("rewe sma reel")) return false;
+    return true;
+  });
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-zinc-900">
+      <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-3xl">
+            Susanne Hoyer
+          </h1>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            Thumbnail ist hier nur der erste Frame. Das Bild wird nochmal separat ausgewählt.
+          </p>
+        </div>
+
+        <PostingDateFilter
+          lumenLetterVideos={lumenLetterVideos}
+          mainVideos={mainVideos}
+          commentsByVideo={commentsByVideo}
+          source="supabase"
+        />
+      </main>
+    </div>
+  );
+}

@@ -92,6 +92,11 @@ export function VideoCard({ video }: VideoCardProps) {
       <div className="flex flex-1 flex-col p-4">
         <p className="text-sm font-medium text-violet-600 dark:text-violet-400">
           {ratingLabel}
+          {video.rating_author_name && (
+            <span className="ml-1 font-normal text-zinc-500 dark:text-zinc-400">
+              · von {video.rating_author_name}
+            </span>
+          )}
         </p>
         <p className="mt-1 flex-1 text-sm text-zinc-700 dark:text-zinc-300 line-clamp-3">
           {video.caption || "—"}

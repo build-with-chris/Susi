@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Video, VideoComment } from "@/types/database";
+import type { Project, Video, VideoComment } from "@/types/database";
 
 const VIDEOS_PAGE_SIZE = 18;
 const VIDEOS_FETCH_LIMIT = 60;
@@ -93,6 +93,54 @@ export async function getLumenLetterVideosFromSupabase(): Promise<Video[]> {
     .from("videos")
     .select("*")
     .like("video_url", `${LUNDL_VIDEO_BASE_URL}%`);
+
+  if (error) return [];
+  return (data ?? []) as Video[];
+}
+
+/**
+ * Lädt alle Projekte, neueste zuerst.
+ */
+export async function getProjects(): Promise<Project[]> {
+  if (!hasSupabaseEnv()) return [];
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("projects")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) return [];
+  return (data ?? []) as Project[];
+}
+
+/**
+ * Lädt ein einzelnes Projekt anhand der ID. Gibt null zurück, wenn nicht gefunden.
+ */
+export async function getProjectById(id: string): Promise<Project | null> {
+  if (!hasSupabaseEnv() || !id) return null;
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("projects").select("*").eq("id", id).single();
+
+  if (error || !data) return null;
+  return data as Project;
+}
+
+/**
+ * Lädt alle Videos eines Projekts (project_id), sortiert wie in der Übersicht.
+ */
+export async function getVideosByProjectId(projectId: string): Promise<Video[]> {
+  if (!hasSupabaseEnv() || !projectId) return [];
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("videos")
+    .select("*")
+    .eq("project_id", projectId)
+    .order("rating_rank", { ascending: true })
+    .order("proposed_post_date", { ascending: true, nullsFirst: false })
+    .order("created_at", { ascending: false });
 
   if (error) return [];
   return (data ?? []) as Video[];
