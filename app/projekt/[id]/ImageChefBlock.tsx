@@ -59,6 +59,7 @@ export function ImageChefBlock({ image, comments }: ImageChefBlockProps) {
         <div className="mt-6 space-y-6 border-t border-zinc-200 pt-6 dark:border-zinc-700">
           <ImageRatingEditor
             imageId={image.id}
+            projectId={image.project_id}
             currentRatingTag={image.rating_tag ?? ""}
             currentCaption={image.caption ?? ""}
             currentRatingAuthorName={image.rating_author_name}
@@ -66,16 +67,19 @@ export function ImageChefBlock({ image, comments }: ImageChefBlockProps) {
           />
           <ImageCaptionEditor
             imageId={image.id}
+            projectId={image.project_id}
             initialCaption={image.caption ?? ""}
             labelId={`caption-${image.id}`}
           />
           <ImageDateEditor
             imageId={image.id}
+            projectId={image.project_id}
             proposedPostDate={image.proposed_post_date}
             labelId={`date-${image.id}`}
           />
           <ImageCommentBox
             imageId={image.id}
+            projectId={image.project_id}
             comments={comments}
             labelId={`comment-${image.id}`}
           />

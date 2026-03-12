@@ -21,12 +21,14 @@ function formatCommentDate(iso: string): string {
 
 type ImageCommentBoxProps = {
   imageId: string;
+  projectId: string;
   comments: ProjectImageComment[];
   labelId: string;
 };
 
 export function ImageCommentBox({
   imageId,
+  projectId,
   comments,
   labelId,
 }: ImageCommentBoxProps) {
@@ -42,7 +44,8 @@ export function ImageCommentBox({
     const result = await saveImageComment(
       imageId,
       text,
-      authorName.trim() || null
+      authorName.trim() || null,
+      projectId
     );
     setSaving(false);
     if (result.ok) {

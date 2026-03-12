@@ -106,7 +106,8 @@ export type ImageActionResult = { ok: true } | { ok: false; error: string };
 
 export async function updateImageCaption(
   imageId: string,
-  caption: string
+  caption: string,
+  projectId?: string
 ): Promise<ImageActionResult> {
   const trimmed = caption?.trim() ?? "";
   const supabase = await createClient();
@@ -114,7 +115,7 @@ export async function updateImageCaption(
   const { error } = await supabase.from("project_images").update(payload as never).eq("id", imageId);
   if (error) return { ok: false, error: error.message };
   revalidatePath("/");
-  revalidatePath("/projekt");
+  if (projectId) revalidatePath(`/projekt/${projectId}`);
   return { ok: true };
 }
 
@@ -122,7 +123,8 @@ export async function updateImageRating(
   imageId: string,
   ratingTag: string | null,
   currentCaption: string,
-  authorName?: string | null
+  authorName?: string | null,
+  projectId?: string
 ): Promise<ImageActionResult> {
   const tag = ratingTag?.trim() ?? "";
   const { rating_tag, rating_rank } =
@@ -141,13 +143,14 @@ export async function updateImageRating(
   const { error } = await supabase.from("project_images").update(payload as never).eq("id", imageId);
   if (error) return { ok: false, error: error.message };
   revalidatePath("/");
-  revalidatePath("/projekt");
+  if (projectId) revalidatePath(`/projekt/${projectId}`);
   return { ok: true };
 }
 
 export async function updateImageProposedPostDate(
   imageId: string,
-  proposedPostDate: string | null
+  proposedPostDate: string | null,
+  projectId?: string
 ): Promise<ImageActionResult> {
   const value =
     proposedPostDate && proposedPostDate.trim() !== ""
@@ -158,14 +161,15 @@ export async function updateImageProposedPostDate(
   const { error } = await supabase.from("project_images").update(payload as never).eq("id", imageId);
   if (error) return { ok: false, error: error.message };
   revalidatePath("/");
-  revalidatePath("/projekt");
+  if (projectId) revalidatePath(`/projekt/${projectId}`);
   return { ok: true };
 }
 
 export async function saveImageComment(
   imageId: string,
   comment: string,
-  authorName?: string | null
+  authorName?: string | null,
+  projectId?: string
 ): Promise<ImageActionResult> {
   const trimmed = comment?.trim();
   if (!trimmed) return { ok: false, error: "Kommentar darf nicht leer sein." };
@@ -179,7 +183,7 @@ export async function saveImageComment(
   const { error } = await supabase.from("project_image_comments").insert(row as never);
   if (error) return { ok: false, error: error.message };
   revalidatePath("/");
-  revalidatePath("/projekt");
+  if (projectId) revalidatePath(`/projekt/${projectId}`);
   return { ok: true };
 }
 

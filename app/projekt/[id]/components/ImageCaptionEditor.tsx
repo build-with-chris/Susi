@@ -6,12 +6,14 @@ import { updateImageCaption } from "../../actions";
 
 type ImageCaptionEditorProps = {
   imageId: string;
+  projectId: string;
   initialCaption: string;
   labelId: string;
 };
 
 export function ImageCaptionEditor({
   imageId,
+  projectId,
   initialCaption,
   labelId,
 }: ImageCaptionEditorProps) {
@@ -23,7 +25,7 @@ export function ImageCaptionEditor({
   async function handleSave() {
     setError(null);
     setSaving(true);
-    const result = await updateImageCaption(imageId, caption);
+    const result = await updateImageCaption(imageId, caption, projectId);
     setSaving(false);
     if (result.ok) router.refresh();
     else setError(result.error);

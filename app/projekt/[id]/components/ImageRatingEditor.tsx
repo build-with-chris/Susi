@@ -7,6 +7,7 @@ import { updateImageRating } from "../../actions";
 
 type ImageRatingEditorProps = {
   imageId: string;
+  projectId: string;
   currentRatingTag: string;
   currentCaption: string;
   currentRatingAuthorName?: string | null;
@@ -15,6 +16,7 @@ type ImageRatingEditorProps = {
 
 export function ImageRatingEditor({
   imageId,
+  projectId,
   currentRatingTag,
   currentCaption,
   currentRatingAuthorName,
@@ -40,7 +42,8 @@ export function ImageRatingEditor({
       imageId,
       value === "" ? null : value,
       currentCaption,
-      name
+      name,
+      projectId
     );
     setSaving(false);
     if (result.ok) router.refresh();

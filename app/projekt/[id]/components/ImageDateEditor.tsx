@@ -8,12 +8,14 @@ const DEBOUNCE_MS = 600;
 
 type ImageDateEditorProps = {
   imageId: string;
+  projectId: string;
   proposedPostDate: string | null;
   labelId: string;
 };
 
 export function ImageDateEditor({
   imageId,
+  projectId,
   proposedPostDate,
   labelId,
 }: ImageDateEditorProps) {
@@ -36,12 +38,12 @@ export function ImageDateEditor({
           : proposedPostDate ?? null;
       if (trimmed === current) return;
       setSaving(true);
-      const result = await updateImageProposedPostDate(imageId, trimmed);
+      const result = await updateImageProposedPostDate(imageId, trimmed, projectId);
       setSaving(false);
       setDirty(false);
       if (result.ok) router.refresh();
     },
-    [imageId, proposedPostDate, router]
+    [imageId, projectId, proposedPostDate, router]
   );
 
   useEffect(() => {
