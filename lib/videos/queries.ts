@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Project, ProjectImage, Video, VideoComment } from "@/types/database";
+import type { Project, ProjectImage, ProjectImageComment, Video, VideoComment } from "@/types/database";
 
 const VIDEOS_PAGE_SIZE = 18;
 const VIDEOS_FETCH_LIMIT = 60;
@@ -157,8 +157,35 @@ export async function getImagesByProjectId(projectId: string): Promise<ProjectIm
     .from("project_images")
     .select("*")
     .eq("project_id", projectId)
+    .order("rating_rank", { ascending: true })
+    .order("proposed_post_date", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: false });
 
   if (error) return [];
   return (data ?? []) as ProjectImage[];
+}
+
+/**
+ * Lädt alle Kommentare für die gegebenen Bild-IDs, gruppiert nach image_id.
+ */
+export async function getCommentsByImageIds(
+  imageIds: string[]
+): Promise<Record<string, ProjectImageComment[]>> {
+  if (imageIds.length === 0 || !hasSupabaseEnv()) return {};
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("project_image_comments")
+    .select("*")
+    .in("image_id", imageIds)
+    .order("created_at", { ascending: false });
+
+  if (error) return {};
+
+  const byImage: Record<string, ProjectImageComment[]> = {};
+  for (const id of imageIds) byImage[id] = [];
+  for (const row of (data ?? []) as ProjectImageComment[]) {
+    byImage[row.image_id].push(row);
+  }
+  return byImage;
 }

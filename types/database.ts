@@ -103,6 +103,10 @@ export interface Database {
           image_url: string;
           caption: string;
           created_at: string;
+          rating_tag: string | null;
+          rating_rank: number;
+          rating_author_name: string | null;
+          proposed_post_date: string | null;
         };
         Insert: {
           id?: string;
@@ -110,12 +114,43 @@ export interface Database {
           image_url: string;
           caption?: string;
           created_at?: string;
+          rating_tag?: string | null;
+          rating_rank?: number;
+          rating_author_name?: string | null;
+          proposed_post_date?: string | null;
         };
         Update: {
           id?: string;
           project_id?: string;
           image_url?: string;
           caption?: string;
+          created_at?: string;
+          rating_tag?: string | null;
+          rating_rank?: number;
+          rating_author_name?: string | null;
+          proposed_post_date?: string | null;
+        };
+      };
+      project_image_comments: {
+        Row: {
+          id: string;
+          image_id: string;
+          comment: string;
+          author_name: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          image_id: string;
+          comment: string;
+          author_name?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          image_id?: string;
+          comment?: string;
+          author_name?: string | null;
           created_at?: string;
         };
       };
@@ -141,3 +176,8 @@ export type ProjectInsert = Database["public"]["Tables"]["projects"]["Insert"];
 
 export type ProjectImage = Database["public"]["Tables"]["project_images"]["Row"];
 export type ProjectImageInsert = Database["public"]["Tables"]["project_images"]["Insert"];
+export type ProjectImageUpdate = Database["public"]["Tables"]["project_images"]["Update"];
+
+export type ProjectImageComment = Database["public"]["Tables"]["project_image_comments"]["Row"];
+export type ProjectImageCommentInsert =
+  Database["public"]["Tables"]["project_image_comments"]["Insert"];

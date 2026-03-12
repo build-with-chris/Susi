@@ -4,8 +4,10 @@ import {
   getVideosByProjectId,
   getImagesByProjectId,
   getCommentsByVideoIds,
+  getCommentsByImageIds,
 } from "@/lib/videos/queries";
 import { PostingDateFilter } from "@/app/videos/components/PostingDateFilter";
+import { ImageChefBlock } from "./ImageChefBlock";
 import { ProjektLoeschenButton } from "./ProjektLoeschenButton";
 import { ProjectPasswordGate } from "./ProjectPasswordGate";
 import { ProjektPasswortSetzen } from "./ProjektPasswortSetzen";
@@ -51,7 +53,11 @@ export default async function ProjektDetailPage({ params }: PageProps) {
     getImagesByProjectId(id),
   ]);
   const videoIds = videos.map((v) => v.id);
-  const commentsByVideo = await getCommentsByVideoIds(videoIds);
+  const imageIds = images.map((i) => i.id);
+  const [commentsByVideo, commentsByImage] = await Promise.all([
+    getCommentsByVideoIds(videoIds),
+    getCommentsByImageIds(imageIds),
+  ]);
 
   return (
     <ProjectPasswordGate projectId={id} projectTitle={project.title}>
@@ -93,22 +99,11 @@ export default async function ProjektDetailPage({ params }: PageProps) {
               <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-200">Bilder</h2>
               <ul className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {images.map((img) => (
-                  <li key={img.id} className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
-                    <a
-                      href={img.image_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
-                    >
-                      <img
-                        src={img.image_url}
-                        alt={img.caption || "Projektbild"}
-                        className="h-auto w-full object-cover"
-                      />
-                    </a>
-                    {img.caption && (
-                      <p className="p-2 text-xs text-zinc-600 dark:text-zinc-400">{img.caption}</p>
-                    )}
+                  <li key={img.id} className="min-w-0">
+                    <ImageChefBlock
+                      image={img}
+                      comments={commentsByImage[img.id] ?? []}
+                    />
                   </li>
                 ))}
               </ul>

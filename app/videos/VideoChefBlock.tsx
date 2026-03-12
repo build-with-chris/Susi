@@ -81,6 +81,21 @@ export function VideoChefBlock({ video, comments }: VideoChefBlockProps) {
             labelId={`comment-${video.id}`}
           />
           <div className="border-t border-zinc-200 pt-6 dark:border-zinc-700">
+            <p className="mb-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400">Video herunterladen</p>
+            <a
+              href={video.video_url}
+              download
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mb-4 inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Video herunterladen
+            </a>
+          </div>
+          <div className="border-t border-zinc-200 pt-6 dark:border-zinc-700">
             <p className="mb-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400">Video entfernen</p>
             <VideoLoeschenButton
               videoId={video.id}
