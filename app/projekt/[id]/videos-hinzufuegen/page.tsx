@@ -40,14 +40,14 @@ export default async function VideosHinzufuegenPage({ params }: PageProps) {
         </Link>
 
         <h1 className="mt-6 text-2xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-3xl">
-          Videos hinzufügen
+          Videos & Bilder hinzufügen
         </h1>
 
         <UploadVideosToProject
           projectId={id}
           projectTitle={project.title}
-          successHeading="Videos hinzugefügt"
-          successMessage="Die neuen Videos wurden zu 720p60 konvertiert und dem Projekt hinzugefügt."
+          successHeading="Medien hinzugefügt"
+          successMessage="Videos wurden zu 720p60 konvertiert, Bilder auf HD herunterskaliert und dem Projekt hinzugefügt."
           successLink={`/projekt/${id}`}
           successLinkLabel={`Zurück zu „${project.title}"`}
           backLink="/"

@@ -96,6 +96,29 @@ export interface Database {
           created_at?: string;
         };
       };
+      project_images: {
+        Row: {
+          id: string;
+          project_id: string;
+          image_url: string;
+          caption: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          image_url: string;
+          caption?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          image_url?: string;
+          caption?: string;
+          created_at?: string;
+        };
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -115,3 +138,6 @@ export type VideoCommentUpdate =
 
 export type Project = Database["public"]["Tables"]["projects"]["Row"];
 export type ProjectInsert = Database["public"]["Tables"]["projects"]["Insert"];
+
+export type ProjectImage = Database["public"]["Tables"]["project_images"]["Row"];
+export type ProjectImageInsert = Database["public"]["Tables"]["project_images"]["Insert"];

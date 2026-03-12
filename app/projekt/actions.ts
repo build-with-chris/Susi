@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import type { ProjectInsert, VideoInsert } from "@/types/database";
+import type { ProjectImageInsert, ProjectInsert, VideoInsert } from "@/types/database";
 import { getRatingFromCaption } from "@/lib/videos/rating";
 
 export type ProjektActionResult =
@@ -56,6 +56,34 @@ export async function addVideoToProject(
     return { ok: false, error: error.message };
   }
   revalidatePath("/");
+  revalidatePath(`/projekt/${projectId}`);
+  return { ok: true };
+}
+
+export type AddImageResult = { ok: true } | { ok: false; error: string };
+
+export async function addImageToProject(
+  projectId: string,
+  imageUrl: string,
+  caption: string
+): Promise<AddImageResult> {
+  if (!projectId || !imageUrl?.trim()) {
+    return { ok: false, error: "projectId und imageUrl erforderlich." };
+  }
+
+  const supabase = await createClient();
+  const row: ProjectImageInsert = {
+    project_id: projectId,
+    image_url: imageUrl.trim(),
+    caption: (caption?.trim() || "").replace(/\s+/g, " ") || "(ohne Beschreibung)",
+  };
+  const { error } = await supabase.from("project_images").insert(row as never);
+
+  if (error) {
+    return { ok: false, error: error.message };
+  }
+  revalidatePath("/");
+  revalidatePath(`/projekt/${projectId}`);
   return { ok: true };
 }
 
@@ -68,7 +96,9 @@ export async function deleteProject(projectId: string): Promise<DeleteProjectRes
 
   const supabase = await createClient();
 
-  // Optional: Dateien im Storage unter projectId/ löschen (Bucket: project-videos)
+  // Bilder des Projekts in DB löschen (CASCADE löscht bei projects ohnehin, explizit für Klarheit)
+  await supabase.from("project_images").delete().eq("project_id", projectId.trim());
+  // Dateien im Storage unter projectId/ löschen (Videos + Bilder, Bucket: project-videos)
   const { data: files } = await supabase.storage
     .from("project-videos")
     .list(projectId.trim(), { limit: 1000 });

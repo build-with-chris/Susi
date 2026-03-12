@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   getProjectById,
   getVideosByProjectId,
+  getImagesByProjectId,
   getCommentsByVideoIds,
 } from "@/lib/videos/queries";
 import { PostingDateFilter } from "@/app/videos/components/PostingDateFilter";
@@ -45,7 +46,10 @@ export default async function ProjektDetailPage({ params }: PageProps) {
     );
   }
 
-  const videos = await getVideosByProjectId(id);
+  const [videos, images] = await Promise.all([
+    getVideosByProjectId(id),
+    getImagesByProjectId(id),
+  ]);
   const videoIds = videos.map((v) => v.id);
   const commentsByVideo = await getCommentsByVideoIds(videoIds);
 
@@ -66,13 +70,14 @@ export default async function ProjektDetailPage({ params }: PageProps) {
               </h1>
               <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                 {videos.length} {videos.length === 1 ? "Video" : "Videos"}
+                {images.length > 0 && ` · ${images.length} ${images.length === 1 ? "Bild" : "Bilder"}`}
               </p>
             </div>
             <Link
               href={`/projekt/${id}/videos-hinzufuegen`}
               className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-violet-700 active:bg-violet-800 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
             >
-              Videos hinzufügen
+              Videos & Bilder hinzufügen
             </Link>
           </div>
 
@@ -82,6 +87,33 @@ export default async function ProjektDetailPage({ params }: PageProps) {
             commentsByVideo={commentsByVideo}
             source="supabase"
           />
+
+          {images.length > 0 && (
+            <section className="mt-12 border-t border-zinc-200 pt-8 dark:border-zinc-800">
+              <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-200">Bilder</h2>
+              <ul className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {images.map((img) => (
+                  <li key={img.id} className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
+                    <a
+                      href={img.image_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
+                    >
+                      <img
+                        src={img.image_url}
+                        alt={img.caption || "Projektbild"}
+                        className="h-auto w-full object-cover"
+                      />
+                    </a>
+                    {img.caption && (
+                      <p className="p-2 text-xs text-zinc-600 dark:text-zinc-400">{img.caption}</p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           <section className="mt-12 border-t border-zinc-200 pt-8 dark:border-zinc-800">
             <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Passwortschutz</h2>

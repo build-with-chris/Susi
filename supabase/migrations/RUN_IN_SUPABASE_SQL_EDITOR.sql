@@ -73,3 +73,28 @@ COMMENT ON COLUMN public.projects.password_hash IS 'bcrypt-Hash des Projektpassw
 
 -- Bestehende Projekte entsperren (kein Passwort): Einmal ausführen, wenn alle Projekte plötzlich passwortgeschützt erscheinen.
 -- UPDATE public.projects SET password_protected = false, password_hash = null;
+
+-- 8) Projekt-Bilder (PNG, JPG, WebP), im Browser auf HD herunterskaliert
+CREATE TABLE IF NOT EXISTS public.project_images (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id uuid NOT NULL REFERENCES public.projects(id) ON DELETE CASCADE,
+  image_url text NOT NULL,
+  caption text NOT NULL DEFAULT '',
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_project_images_project_id ON public.project_images(project_id);
+
+ALTER TABLE public.project_images ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow public read on project_images" ON public.project_images;
+CREATE POLICY "Allow public read on project_images"
+  ON public.project_images FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Allow public insert on project_images" ON public.project_images;
+CREATE POLICY "Allow public insert on project_images"
+  ON public.project_images FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow public delete on project_images" ON public.project_images;
+CREATE POLICY "Allow public delete on project_images"
+  ON public.project_images FOR DELETE USING (true);

@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Project, Video, VideoComment } from "@/types/database";
+import type { Project, ProjectImage, Video, VideoComment } from "@/types/database";
 
 const VIDEOS_PAGE_SIZE = 18;
 const VIDEOS_FETCH_LIMIT = 60;
@@ -144,4 +144,21 @@ export async function getVideosByProjectId(projectId: string): Promise<Video[]> 
 
   if (error) return [];
   return (data ?? []) as Video[];
+}
+
+/**
+ * Lädt alle Bilder eines Projekts (project_id), neueste zuerst.
+ */
+export async function getImagesByProjectId(projectId: string): Promise<ProjectImage[]> {
+  if (!hasSupabaseEnv() || !projectId) return [];
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("project_images")
+    .select("*")
+    .eq("project_id", projectId)
+    .order("created_at", { ascending: false });
+
+  if (error) return [];
+  return (data ?? []) as ProjectImage[];
 }

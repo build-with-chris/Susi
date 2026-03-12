@@ -58,7 +58,7 @@ export default function ProjektNeuPage() {
               type="submit"
               className="mt-4 rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
             >
-              Weiter – Videos auswählen
+              Weiter – Videos & Bilder auswählen
             </button>
           </form>
         )}
